@@ -1,0 +1,224 @@
+\documentclass [9 pt]{article}
+\usepackage[margin = 1in]{geometry}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{arydshln}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{enumerate}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{graphicx}
+\graphicspath{ {./images/} }
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tikz}
+\usepackage{booktabs}
+\usepackage[framemethod = tikz]{mdframed}
+
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+
+\lstset{
+  language=Matlab,
+  basicstyle=\ttfamily,               
+  numbers=left,                  
+  stepnumber=1,                  
+  numbersep=5pt,                  
+  backgroundcolor=\color{white}, 
+  showspaces=false,              
+  showstringspaces=false,        
+  showtabs=false,                
+  tabsize=2,                     
+  captionpos=b,                  
+  breaklines=true,               
+  breakatwhitespace=true,         
+  title=\lstname,
+  numberstyle=\tiny\color{Black},
+  keywordstyle=\color{BrickRed},
+  commentstyle=\color{dkgreen},
+  stringstyle=\color{mauve},  
+}
+
+\theoremstyle{definition}
+\newtheorem{problem}{Problem}
+\newtheorem{theorem}{Theorem}
+\newtheorem*{corollary}{Corollary}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{example}[theorem]{Example}
+
+
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\lhead{Yuhao Wu \quad 260711365} 
+\rhead{\bfseries COMP 350 Final Review 6}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+
+\setlength{\parindent}{0pt}
+
+
+\begin{document}
+
+\title{Numerical ODE (10 points)}
+\date{2018-11-30}
+\author{Name: Yuhao Wu\\
+ID Number: 260711365
+}
+\maketitle
+
+
+
+In this course, we mainly focus on the following general \textit{Initial-Value-Problem} for a first order ODE.
+
+$$ \begin{cases}
+	x' = f(x, t)\\
+	x(a) = x_0
+\end{cases} \quad \quad or \quad \quad 
+\begin{cases}
+	\dfrac{dx(t)}{dt} = f\Big(x(t), t\Big)\\
+	\\
+	x(a) = x_0
+\end{cases}
+$$
+In many applications, the closed-form solution for the above IVP may be very complicated and difficult to evaluate or there is no closed-form solution. So, we want a numerical solution.\\
+\\
+A numerical algorithm for solving an $ODE$ produces a sequence of points $(t_i, x_i), \quad i = 0, 1, 2, \ldots$ where $x_i$ is an approximation to the true value $x(t_i)$, while the mathematical solution is a continuous function $x(t)$\\
+\\
+\textbf{NOTE:} But you can do polynomial interpolation on the points we have already calculated to get a continuous form.
+
+
+\section*{Euler's Method:}
+We would like to find approximate values of the solution to the IVP over the interval $[a, b]$. Use $n + 1$ points $t_0, t_1, t_2, \ldots , t_n$ to equally partition $[a, b]$. We call $h = t_{i+1} - t_i = \dfrac{b - a}{n}$ \textbf{Size Step}.\\
+\\
+Suppose that we have already obtained $x_i$, an approximation to $x(t_i)$. We would like to get $x_{i+1}$, an approximation to $x(t_{i+1})$. We use the Taylor Expansion:
+$$x(t_{i + 1}) \approx x(t_i) + (t_{i + 1} - t_i)x'(t_i) = x(t_i) + h \cdot f\Big( x(t_i), t_i \Big) $$
+leads to the formula of Euler's Method:
+$$ x_{i+1} = x_i + h \cdot f(t_i, x_i) $$
+
+
+\newpage
+\begin{algorithm}
+\caption{Euler's Method: }
+\begin{algorithmic}[1]
+\State Input: $f(x, t), [a, b], x_0, n$ \Comment{$x_0$ is value of initial point}
+\\
+\State $h \gets \dfrac{b - a}{n}$
+\State $t_0 \gets a$
+\\
+\For{$i = 0:n-1$}
+	\State $ x_{i+1} \gets x_i + h\cdot f(t_i, x_i) $
+	\State $t_{i+1} = t_i + h$
+\EndFor
+
+\end{algorithmic}
+\end{algorithm}
+
+\subsection*{Error Analysis for Euler's Method:}
+By Taylor Expansion, we have:
+\begin{equation}
+	x(t_{i+1}) = x(t_{i}) + h \cdot f(t_i, x(t_i)) + \dfrac{1}{2} h^2 x''(z_{i + 1}) \quad\quad z_{i+1} \in [t_i, t_{i+1}]
+\end{equation}
+Euler's Methods gives us:
+\begin{equation}
+	x_{i+1} = x_i + h\cdot f(t_i, x_i)
+\end{equation}
+We use $(1) - (2)$, then we have:
+$$ x(t_{i+1}) - x_{i+1} = \Big[  x(t_{i}) - x_i \Big] 
+		+ h \cdot \Big[ f(t_i, x(t_i)) - f(t_i, x_i) \Big] + \dfrac{1}{2} \cdot h^2 x''(z_{i+1}) \quad \quad z_{i+1} \in [t_i, t_{i+1}] $$
+
+$x(t_{i+1}) - x_{i+1}$ is the error at $t_{i+1}$. This is called the \textbf{ global error } at $t_{i+1}$. It arises from two sources:
+\begin{itemize}
+	\item The \textbf{Local Truncation Error}: $ \dfrac{1}{2} \cdot h^2 x''(z_{i+1})$ \quad\quad $O(h^2)$
+	\item The \textbf{Propagation Error:} $\Big[  x(t_{i}) - x_i \Big] 
+		+ h \cdot \Big[ f(t_i, x(t_i)) - f(t_i, x_i) \Big]$. This is due to the accumulated effects of all local truncation errors at $t_1, t_2, \ldots t_i$   
+\end{itemize}
+When we do computing on computers, there will be \textbf{ rounding errors } as well.
+
+
+\section*{Trapezoidal Euler's Method:}
+For $x'(t) = f\Big(t, x(t)\Big)$, we integral both sides:
+
+\begin{equation}
+	 \int_{t_i}^{t_{i+1}} x'(t)\ dt = \int_{t_i}^{t_{i+1}} f\Big(t, x(t)\Big)\ dt \implies x(t_{i+1}) - x_{t_i} = \int_{t_i}^{t_{i+1}} f\Big(t, x(t)\Big)\ dt
+\end{equation}
+
+We apply Trapezoid Rule to the right-hand-side, then we have:
+$$ x(t_{i+1}) - x_{t_i} \approx \dfrac{1}{2} \cdot h \cdot \Bigg[ f(t_i, x(t_i) + f\Big(t_{i+1}, x( t_{i+1} )\Big) \Bigg] $$
+This leads to scheme:
+$$ x_{i+1} =  x_{i} + \dfrac{1}{2} \cdot h \cdot \Bigg[ f(t_i, x_i) + f\Big(t_{i+1}, x_{i+1} \Big) \Bigg] $$
+
+\newpage
+But, there is another question, the Right-Hand-Side involves $x_{i+1}$, but $x_{i+1}$ is what we want to calculate, to solve this problem, we use \textbf{Euler's Method} to compute $x_{i+1}$ on the RHS, leading to the formula of the \textbf{Trapezoidal Euler's Method}
+
+$$
+\begin{cases}
+	\widehat{x}_{i+1} = x_i + h\cdot f(t_i, x_i) \\
+	\\
+	x_{i+1} =  x_{i} + \dfrac{1}{2} \cdot h \cdot \Bigg[ f(t_i, x_i) + f\Big(t_{i+1}, \widehat{x}_{i+1} \Big) \Bigg]
+\end{cases}
+$$ 
+\\
+\textbf{The Local Truncation Error} is $O(h^3)$
+
+\section*{Midpoint Euler's Method:}
+It is really similar to the \textbf{Trapezoidal Euler's Method}.\\
+\\
+According to Equation(3), we have:
+
+\begin{equation}
+	x(t_{i+1}) - x_{t_i} = \int_{t_i}^{t_{i+1}} f\Big(t, x(t)\Big)\ dt	
+\end{equation}
+Then, we apply \textbf{ Midpoint Rule } on the RHS, then we have:
+$$ 
+x(t_{i+1}) - x_{t_i} \approx  h\cdot f(t_i + \dfrac{1}{2}\cdot h, x_{i + 1/2})
+$$
+
+This leads to scheme:
+$$ x_{i+1} =  x_{i} + h\cdot f\Big(t_i + \dfrac{1}{2}\cdot h,\ x_{i + 1/2}\Big) $$
+Then, we use \textbf{Midpoint Rule} to get $x_{1 + 1/2}$, which gives us the formula of the \textbf{Midpoint Euler's Method}:
+$$
+\begin{cases}
+	x_{i + 1/2 } = x_i + \dfrac{1}{2} h \cdot  f\Big(t_i ,\ x_{i }\Big) \\
+	\\
+	x_{i+1} =  x_{i} + h\cdot f\Big(t_i + \dfrac{1}{2}\cdot h,\ x_{i + 1/2}\Big)
+\end{cases}
+$$
+\\
+\textbf{The Local Truncation Error} is $O(h^3)$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{document}
